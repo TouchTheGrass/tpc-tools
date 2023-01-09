@@ -1,0 +1,27 @@
+services:
+  rdbms:
+    image: postgres
+    command: postgres -c config_file=/postgresql.conf -c hba_file=/pg_hba.conf
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./postgresql/postgresql.conf:/postgresql.conf
+      - ./postgresql/pg_hba.conf:/pg_hba.conf
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      timeout: 5s
+      start_period: 20s
+      interval: 10s
+      retries: 1
+
+  core:
+    build:
+      context: ../tpc-core
+      dockerfile: ../tpc-tools/core/Dockerfile
+    ports:
+      - 8000:8000
+    depends_on:
+      rdbms:
+        condition: service_started
