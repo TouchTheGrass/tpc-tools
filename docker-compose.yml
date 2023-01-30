@@ -5,10 +5,12 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
     volumes:
+      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./postgresql/postgresql.conf:/postgresql.conf
       - ./postgresql/pg_hba.conf:/pg_hba.conf
     ports:
-      - 5433:5432
+      - 5432:5432
+    restart: always
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       timeout: 5s
@@ -16,12 +18,12 @@ services:
       interval: 10s
       retries: 1
 
-  core:
-    build:
-      context: ../tpc-core
-      dockerfile: ../tpc-tools/core/Dockerfile
-    ports:
-      - 8000:8000
-    depends_on:
-      rdbms:
-        condition: service_started
+#  core:
+#    build:
+#      context: ../tpc-core
+#      dockerfile: ../tpc-tools/core/Dockerfile
+#    ports:
+#      - 8000:8000
+#    depends_on:
+#      rdbms:
+#        condition: service_started
